@@ -139,6 +139,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3500);
     };
 
+    const exportData = (data) => {
+        const fullData = {
+            productos: data.productos,
+            categorias: data.categorias,
+            appConfig: data.appConfig
+        };
+
+        if (!fullData.productos || fullData.productos.length === 0) {
+            showToast('No hay productos para exportar.', 'info');
+            return;
+        }
+
+        const jsonData = JSON.stringify(fullData, null, 2);
+        const blob = new Blob([jsonData], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'catalogo-de-productos.json'; // Nombre de archivo mejorado
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showToast('Datos exportados correctamente.', 'success');
+    };
+
 
     const showLoading = (show) => {
         if (loadingIndicatorMain) {
@@ -654,9 +679,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Lógica de exportar/importar/borrar datos (sin cambios)...
-    if (exportDataBtn) exportDataBtn.addEventListener('click', () => { /* ... */ });
-    if (importDataFileInput) importDataFileInput.addEventListener('change', (event) => { /* ... */ });
-    if (clearAllDataBtn) clearAllDataBtn.addEventListener('click', () => { /* ... */ });
+    // Lógica de exportar/importar/borrar datos
+    if (exportDataBtn) {
+        exportDataBtn.addEventListener('click', () => {
+            // Llama a la función exportData con todos los datos de la app
+            exportData({ productos, categorias, appConfig });
+        });
+    }
+
+    if (importDataFileInput) {
+        importDataFileInput.addEventListener('change', (event) => {
+            // Aquí iría la lógica de importación, si la implementas en el futuro
+        });
+    }
+
+    if (clearAllDataBtn) {
+        clearAllDataBtn.addEventListener('click', () => {
+            // Aquí iría la lógica para borrar todos los datos
+        });
+    }
 
     // --- LISTENERS PARA NUEVOS ELEMENTOS ---
     if (viewModeBtn) viewModeBtn.addEventListener('click', () => {
@@ -746,51 +787,7 @@ document.addEventListener('DOMContentLoaded', () => {
         editImageFileInput.click();
     });
 
-    // Listener para el botón de exportar datos
-    document.addEventListener('DOMContentLoaded', () => {
-        // Busca el botón por su ID
-        const exportBtn = document.getElementById('export-data-btn');
 
-        exportBtn.addEventListener('click', () => {
-            // Aquí usamos la variable 'productos' directamente, que es visible en este ámbito.
-            if (productos && Array.isArray(productos)) {
-                exportData(productos);
-            } else {
-                showToast('No hay datos para exportar.', 'error');
-            }
-        });
-    });
-
-    function exportData(data) {
-        if (!data || data.length === 0) {
-            showToast('No hay datos para exportar.', 'info');
-            return;
-        }
-
-        // Convierte el array de productos a una cadena JSON con formato legible
-        const jsonData = JSON.stringify(data, null, 2);
-
-        // Crea un Blob (objeto de archivo) con el contenido JSON
-        const blob = new Blob([jsonData], { type: 'application/json' });
-
-        // Crea un URL para el Blob
-        const url = URL.createObjectURL(blob);
-
-        // Crea un enlace temporal para la descarga
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'catalogo-productos.json';
-
-        // Simula un clic para iniciar la descarga
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        // Libera el objeto URL
-        URL.revokeObjectURL(url);
-
-        showToast('Datos exportados correctamente.', 'success');
-    }
 
     initApp();
 });
