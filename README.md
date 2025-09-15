@@ -33,8 +33,8 @@ Para ejecutar este proyecto de manera local y evitar problemas como el error de 
 
 1.  **Clona el repositorio:**
     ```bash
-    git clone [https://docs.github.com/es/repositories/creating-and-managing-repositories/quickstart-for-repositories](https://docs.github.com/es/repositories/creating-and-managing-repositories/quickstart-for-repositories)
-    cd [nombre de tu repositorio]
+    git clone [https://github.com/RafaelAlvarez29/catalogo-productos](https://github.com/RafaelAlvarez29/catalogo-productos)
+    cd catalogo-productos
     ```
 
 2.  **Configura un servidor web local:**
