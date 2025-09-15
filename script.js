@@ -751,16 +751,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Busca el botón por su ID
         const exportBtn = document.getElementById('export-data-btn');
 
-        if (exportBtn) {
-            exportBtn.addEventListener('click', () => {
-                // Asume que los datos están disponibles en una variable llamada 'products'
-                if (window.products && Array.isArray(window.products)) {
-                    exportData(window.products);
-                } else {
-                    showToast('No se encontraron datos de productos.', 'error');
-                }
-            });
-        }
+        exportBtn.addEventListener('click', () => {
+            // Aquí usamos la variable 'productos' directamente, que es visible en este ámbito.
+            if (productos && Array.isArray(productos)) {
+                exportData(productos);
+            } else {
+                showToast('No hay datos para exportar.', 'error');
+            }
+        });
     });
 
     function exportData(data) {
