@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Manifest PWA -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Theme color para Android -->
+    <meta name="theme-color" content="#4361ee">
+
+    <!-- Web App para iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Catálogo de Productos">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+
+
+    <title>Catálogo de Productos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+
+
+<body>
+    <div class="app-container">
+        <header>
+            <!-- CONTENIDO DEL HEADER MODIFICADO -->
+            <div class="header-top-row">
+                <div class="app-title">Catálogo</div>
+                <div class="header-actions">
+                    <button class="btn-icon" id="view-mode-btn" title="Cambiar vista">
+                        <i class="fas fa-list"></i>
+                    </button>
+                    <button class="btn-icon" id="toggle-filters-btn" title="Mostrar filtros">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="search-input" placeholder="Buscar productos...">
+                <i class="fas fa-times-circle clear-search" id="clear-search"></i>
+            </div>
+        </header>
+
+        <!-- NUEVA SECCIÓN DE FILTROS -->
+        <div class="filters-container" id="filters-container">
+            <!-- Los botones de categoría se cargarán aquí -->
+        </div>
+
+        <!-- NUEVA SECCIÓN DE ORDENAMIENTO -->
+        <div class="sorting-container">
+            <label for="sort-select">Ordenar por:</label>
+            <select id="sort-select">
+                <option value="default">Recientes</option>
+                <option value="price-asc">Precio: menor a mayor</option>
+                <option value="price-desc">Precio: mayor a menor</option>
+                <option value="name-asc">Nombre: A-Z</option>
+                <option value="name-desc">Nombre: Z-A</option>
+            </select>
+        </div>
+
+        <div class="products-container" id="products-list">
+            <div class="loading-indicator" id="loading-indicator-main">
+                <i class="fas fa-spinner"></i>
+            </div>
+            <!-- Los productos se cargarán aquí dinámicamente -->
+        </div>
+
+        <!-- Botón Flotante para Añadir Producto -->
+        <div class="fab" id="fab-add-product-btn">
+            <i class="fas fa-plus"></i>
+        </div>
+
+        <!-- Barra de navegación -->
+        <nav class="nav-bar">
+            <a href="#" class="nav-item active" id="nav-home">
+                <i class="fas fa-home"></i>
+                <span>Inicio</span>
+            </a>
+            <a href="#" class="nav-item" id="nav-categories">
+                <i class="fas fa-th-large"></i>
+                <span>Categorías</span>
+            </a>
+            <a href="#" class="nav-item" id="nav-add">
+                <i class="fas fa-plus-circle"></i>
+                <span>Añadir</span>
+            </a>
+            <a href="#" class="nav-item" id="nav-settings"> <!-- Descomentado -->
+                <i class="fas fa-cog"></i>
+                <span>Ajustes</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <!-- Contenido generado por JS -->
+    </div>
+
+    <!-- Modal para Editar Producto -->
+    <div class="modal" id="edit-product-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Editar Producto</h2>
+                <button class="modal-close" id="close-edit-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-product-form">
+                    <input type="hidden" id="edit-product-id">
+
+                    <div class="form-group">
+                        <label class="form-label">Imagen del Producto</label>
+                        <div class="image-upload-options">
+                            <div class="image-preview-container" id="edit-image-preview">
+                                <div class="image-preview-placeholder">
+                                    <i class="fas fa-image"></i>
+                                    <span>Vista Previa</span>
+                                </div>
+                            </div>
+                            <div class="image-buttons-container">
+                                <button type="button" class="btn btn-secondary" id="edit-upload-btn">
+                                    <i class="fas fa-upload"></i> Cargar de Galería
+                                </button>
+                                <button type="button" class="btn btn-primary" id="edit-camera-btn">
+                                    <i class="fas fa-camera"></i> Tomar Foto
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="file" id="edit-image-file-input" class="hidden-file-input" accept="image/*">
+                    <input type="hidden" id="edit-product-image-url">
+
+                    <div class="form-group">
+                        <label class="form-label" for="edit-product-name">Nombre del Producto</label>
+                        <input type="text" class="form-control" id="edit-product-name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="edit-product-price">Precio ($)</label>
+                        <input type="number" step="0.01" class="form-control" id="edit-product-price" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Tipo de Precio</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="edit-price-type" value="unidad" checked> Por Unidad
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="edit-price-type" value="kg"> Por Kilogramo
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Categorías</label>
+                        <div class="tags-dropdown">
+                            <input type="text" class="form-control" id="edit-tag-input"
+                                placeholder="Escribe para buscar o añadir categoría...">
+                            <div class="tags-dropdown-menu" id="edit-tags-menu"></div>
+                        </div>
+                        <div class="tags-container" id="edit-tags-container"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="delete-product-btn" class="btn btn-danger">Eliminar</button>
+                <button type="button" id="edit-cancel-btn" class="btn btn-secondary">Cancelar</button>
+                <button type="button" id="edit-save-btn" class="btn btn-success">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Añadir Producto -->
+    <div class="modal" id="add-product-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Añadir Producto</h2>
+                <button class="modal-close" id="close-add-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="add-product-form">
+
+                    <div class="form-group">
+                        <label class="form-label">Imagen del Producto</label>
+                        <div class="image-upload-options">
+                            <div class="image-preview-container" id="add-image-preview">
+                                <div class="image-preview-placeholder">
+                                    <i class="fas fa-image"></i>
+                                    <span>Vista Previa</span>
+                                </div>
+                            </div>
+                            <div class="image-buttons-container">
+                                <button type="button" class="btn btn-secondary" id="add-upload-btn">
+                                    <i class="fas fa-upload"></i> Cargar de Galería
+                                </button>
+                                <button type="button" class="btn btn-primary" id="add-camera-btn">
+                                    <i class="fas fa-camera"></i> Tomar Foto
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="file" id="add-image-file-input" class="hidden-file-input" accept="image/*">
+                    <input type="hidden" id="add-product-image-url">
+
+                    <div class="form-group">
+                        <label class="form-label" for="add-product-name">Nombre del Producto</label>
+                        <input type="text" class="form-control" id="add-product-name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="add-product-price">Precio ($)</label>
+                        <input type="number" step="0.01" class="form-control" id="add-product-price" required>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="add-price-type" value="unidad" checked> Por Unidad
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="add-price-type" value="kg"> Por Kilogramo
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Categorías</label>
+                        <div class="tags-dropdown">
+                            <input type="text" class="form-control" id="add-tag-input"
+                                placeholder="Escribe para buscar o añadir categoría...">
+                            <div class="tags-dropdown-menu" id="add-tags-menu"></div>
+                        </div>
+                        <div class="tags-container" id="add-tags-container"></div>
+                    </div>
+
+                    <label class="continue-adding">
+                        <input type="checkbox" id="continue-adding-check">
+                        Seguir añadiendo productos
+                    </label>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="add-cancel-btn" class="btn btn-secondary">Cancelar</button>
+                <button type="button" id="add-save-btn" class="btn btn-success">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Gestionar Categorías -->
+    <div class="modal" id="categories-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Gestionar Categorías</h2>
+                <button class="modal-close" id="close-categories-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Añade o elimina las categorías de tus productos.</p>
+
+                <div class="category-form">
+                    <input type="text" class="form-control" id="new-category-input" placeholder="Nueva categoría...">
+                    <button type="button" class="btn btn-primary" id="add-new-category-btn">Añadir</button>
+                </div>
+
+                <ul class="categories-list" id="manage-categories-list">
+                    <!-- Las categorías se cargarán aquí dinámicamente -->
+                </ul>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="categories-done-btn" class="btn btn-success">Listo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Configuración -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Configuración</h2>
+                <button class="modal-close" id="close-settings-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-group">
+                    <h3><i class="fas fa-eye"></i> Vista de Productos</h3>
+                    <div class="radio-inputs product-view-selector">
+                        <label class="radio-label-tile">
+                            <input class="radio-input" type="radio" name="product-view-mode" value="list">
+                            <span class="radio-tile">
+                                <span class="radio-icon">
+                                    <i class="fas fa-list"></i>
+                                </span>
+                                <span class="radio-tile-label">Lista</span>
+                            </span>
+                        </label>
+                        <label class="radio-label-tile">
+                            <input class="radio-input" type="radio" name="product-view-mode" value="grid">
+                            <span class="radio-tile">
+                                <span class="radio-icon">
+                                    <i class="fas fa-th-large"></i>
+                                </span>
+                                <span class="radio-tile-label">Cuadrícula</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <h3><i class="fas fa-image"></i> Ajuste de Imagen</h3>
+                    <p>Elige cómo se muestran las imágenes en la lista de productos.</p>
+                    <div class="product-view-selector">
+                        <label class="radio-label-tile">
+                            <input class="radio-input" type="radio" name="product-image-view" value="cover">
+                            <span class="radio-tile">
+                                <span class="radio-icon">
+                                    <i class="fas fa-expand-arrows-alt"></i>
+                                </span>
+                                <span class="radio-tile-label">Rellenar (Cover)</span>
+                            </span>
+                        </label>
+                        <label class="radio-label-tile">
+                            <input class="radio-input" type="radio" name="product-image-view" value="contain">
+                            <span class="radio-tile">
+                                <span class="radio-icon">
+                                    <i class="fas fa-compress-arrows-alt"></i>
+                                </span>
+                                <span class="radio-tile-label">Ajustar (Contain)</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+
+                <div class="settings-group">
+                    <h3><i class="fas fa-database"></i> Gestión de Datos</h3>
+                    <p>Exporta tus datos como un archivo JSON o importa un archivo para restaurar tu catálogo.</p>
+                    <button type="button" class="btn btn-primary btn-block" id="export-data-btn">
+                        <i class="fas fa-file-export"></i> Exportar Datos (.json)
+                    </button>
+                    <label for="import-data-file-input" class="btn btn-secondary btn-block"
+                        style="margin-top: var(--spacing-sm); cursor: pointer;">
+                        <i class="fas fa-file-import"></i> Importar Datos (.json)
+                    </label>
+                    <input type="file" id="import-data-file-input" class="hidden-file-input" accept=".json">
+                </div>
+
+                <div class="settings-group">
+                    <h3><i class="fas fa-palette"></i> Tema de la Aplicación</h3>
+                    <div class="theme-switch-wrapper">
+                        <label class="theme-switch">
+                            <input type="checkbox" id="theme-toggle-checkbox">
+                            <span class="slider">Modo Oscuro</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <h3><i class="fas fa-trash-alt"></i> Borrar Datos</h3>
+                    <p>Esto eliminará permanentemente todos los productos y categorías. Esta acción no se puede
+                        deshacer.</p>
+                    <button type="button" class="btn btn-danger btn-block" id="clear-all-data-btn">
+                        <i class="fas fa-exclamation-triangle"></i> Borrar Todos los Datos
+                    </button>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="settings-done-btn" class="btn btn-success">Listo</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
