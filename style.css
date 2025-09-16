@@ -1566,3 +1566,8 @@ body.dark-mode .scroll-to-top-btn {
     order: 1;
     /* Manda los productos agotados al final de la lista */
 }
+
+.stock-badge.available {
+    background-color: var(--success-color);
+    color: white;
+}

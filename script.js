@@ -210,9 +210,9 @@ document.addEventListener('DOMContentLoaded', () => {
             productos = JSON.parse(storedProductos);
         } else {
             productos = [
-                { id: generateId(), nombre: "Leche Entera 1L", precio: 25.50, imagen: "", categoria: ["Lácteos"], tipoPrecio: "unidad" },
-                { id: generateId(), nombre: "Pan de Caja Integral", precio: 42.00, imagen: "", categoria: ["Panadería", "Vegano"], tipoPrecio: "unidad" },
-                { id: generateId(), nombre: "Manzanas Fuji (kg)", precio: 55.90, imagen: "", categoria: ["Frutas"], tipoPrecio: "kg" },
+                { id: generateId(), nombre: "Leche Entera 1L", precio: 25.50, imagen: "", categoria: ["Lácteos"], tipoPrecio: "unidad", stock: 12 },
+                { id: generateId(), nombre: "Pan de Caja Integral", precio: 42.00, imagen: "", categoria: ["Panadería", "Vegano"], tipoPrecio: "unidad", stock: 5 },
+                { id: generateId(), nombre: "Manzanas Fuji (kg)", precio: 55.90, imagen: "", categoria: ["Frutas"], tipoPrecio: "kg", stock: "disponible" },
             ];
         }
 
@@ -351,16 +351,41 @@ document.addEventListener('DOMContentLoaded', () => {
                     <i class="fas fa-image product-image-fallback"></i>
                 `;
         let stockHTML = '';
-        if (typeof producto.stock === 'number') {
-            let stockClass = 'stock-badge';
-            if (producto.stock === 0) {
-                stockClass += ' out'; // Agotado
-                card.classList.add('out-of-stock-card'); // Atenuar toda la tarjeta
-            } else if (producto.stock <= 5) {
-                stockClass += ' low'; // Stock bajo
+        // SI ES POR UNIDAD, MUESTRA STOCK NUMÉRICO
+        if (producto.tipoPrecio === 'unidad') {
+            if (typeof producto.stock === 'number') {
+                let stockClass = 'stock-badge';
+                if (producto.stock === 0) {
+                    stockClass += ' out';
+                    card.classList.add('out-of-stock-card');
+                } else if (producto.stock <= 5) {
+                    stockClass += ' low';
+                } else {
+                    stockClass += ' available'; // Usa la clase verde para stock normal
+                }
+                stockHTML = `<div class="${stockClass}">Stock: ${producto.stock}</div>`;
             }
-            stockHTML = `<div class="${stockClass}">Stock: ${producto.stock}</div>`;
         }
+        // SI ES POR KILO, MUESTRA ESTADO DE DISPONIBILIDAD
+        else if (producto.tipoPrecio === 'kg') {
+            let stockClass = 'stock-badge';
+            const stockStatus = producto.stock || 'disponible'; // 'stock' aquí es un string
+            switch (stockStatus) {
+                case 'agotado':
+                    stockClass += ' out';
+                    card.classList.add('out-of-stock-card');
+                    break;
+                case 'poco':
+                    stockClass += ' low';
+                    break;
+                default: // 'disponible'
+                    stockClass += ' available';
+            }
+            // Capitalizar la primera letra para mostrar
+            const displayText = stockStatus.charAt(0).toUpperCase() + stockStatus.slice(1);
+            stockHTML = `<div class="${stockClass}">${displayText}</div>`;
+        }
+
         card.innerHTML = `
             ${stockHTML}  <!-- <-- AÑADE ESTO AQUÍ -->
             <div class="product-image">
@@ -550,7 +575,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupTagInput(editTagInput, editTagsMenu, editTagsContainer);
 
     // FUNCIONALIDAD DE PRODUCTOS (AÑADIR, EDITAR, BORRAR)... (sin cambios significativos en la lógica interna)
-    const openAddProductModal = () => {
+    function openAddProductModal() {
         if (!addProductForm) return;
         addProductForm.reset();
         resetImagePreview(addImagePreview, addProductImageUrlInput, addImageFileInput);
@@ -559,7 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentEditingProductId = null;
         openModal(addProductModalElement);
         if (addProductNameInput) addProductNameInput.focus();
-    };
+    }
     // --- NUEVO CÓDIGO PARA addSaveBtn ---
 
     if (addSaveBtn) {
@@ -569,11 +594,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const nombre = addProductNameInput.value.trim();
             const precio = parseFloat(addProductPriceInput.value);
             const tipoPrecioRadio = document.querySelector('input[name="add-price-type"]:checked');
-
-            // Obtiene el valor del stock. Usa parseInt para asegurar que sea un número entero.
-            // Si el campo está vacío o no es un número, por defecto será 0.
-            const stockInput = document.getElementById('add-product-stock');
-            const stock = stockInput ? (parseInt(stockInput.value, 10) || 0) : 0;
 
             if (!tipoPrecioRadio) {
                 showToast('Por favor, selecciona un tipo de precio.', 'error');
@@ -587,6 +607,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // --- INICIO DE LA NUEVA LÓGICA DE STOCK ---
+            let stock;
+            if (tipoPrecio === 'unidad') {
+                const stockInput = document.getElementById('add-product-stock');
+                // Si el campo está vacío o no es un número, el stock será 0.
+                stock = stockInput ? (parseInt(stockInput.value, 10) || 0) : 0;
+            } else { // tipoPrecio es 'kg'
+                const availabilitySelect = document.getElementById('add-product-availability');
+                // El stock será el valor del select: 'disponible', 'poco', o 'agotado'.
+                stock = availabilitySelect ? availabilitySelect.value : 'disponible';
+            }
+            // --- FIN DE LA NUEVA LÓGICA DE STOCK ---
+
             const newProduct = {
                 id: generateId(),
                 nombre,
@@ -594,7 +627,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 imagen: addProductImageUrlInput ? addProductImageUrlInput.value : "",
                 categoria: formCategorias,
                 tipoPrecio,
-                stock // <-- Se añade el nuevo campo de stock
+                stock // El valor de stock (número o string) se asigna aquí
             };
 
             productos.unshift(newProduct);
@@ -610,6 +643,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (continueAddingCheckbox && continueAddingCheckbox.checked) {
                 addProductForm.reset();
+                // Asegurarse de mostrar el campo de stock correcto después de resetear
+                document.querySelector('input[name="add-price-type"][value="unidad"]').checked = true;
+                toggleStockFields('add');
+
                 resetImagePreview(addImagePreview, addProductImageUrlInput, addImageFileInput);
                 if (addTagsContainer) addTagsContainer.innerHTML = '';
                 continueAddingCheckbox.checked = true;
@@ -619,7 +656,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    const openEditProductModal = (productId) => {
+    function openEditProductModal(productId) {
         if (!editProductForm) return;
         const product = productos.find(p => p.id === productId);
         if (!product) {
@@ -633,10 +670,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (editProductNameInput) editProductNameInput.value = product.nombre;
         if (editProductPriceInput) editProductPriceInput.value = product.precio;
 
-        // Rellena el campo de stock con el valor actual del producto.
-        const stockInput = document.getElementById('edit-product-stock');
-        if (stockInput) {
-            stockInput.value = product.stock || 0; // Si stock es undefined, pone 0
+        if (product.tipoPrecio === 'unidad') {
+            const stockInput = document.getElementById('edit-product-stock');
+            if (stockInput) {
+                stockInput.value = product.stock || 0;
+            }
         }
 
         const typeRadio = document.querySelector(`input[name="edit-price-type"][value="${product.tipoPrecio}"]`);
@@ -657,7 +695,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadTagsToForm(product.categoria, editTagsContainer, editTagInput, editTagsMenu);
         openModal(editProductModalElement);
         if (editProductNameInput) editProductNameInput.focus();
-    };
+    }
     if (editSaveBtn) {
         editSaveBtn.addEventListener('click', () => {
             if (!currentEditingProductId || !editProductNameInput || !editProductPriceInput) return;
@@ -665,10 +703,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const nombre = editProductNameInput.value.trim();
             const precio = parseFloat(editProductPriceInput.value);
             const tipoPrecioRadio = document.querySelector('input[name="edit-price-type"]:checked');
-
-            // Obtiene el valor del stock desde el modal de edición.
-            const stockInput = document.getElementById('edit-product-stock');
-            const stock = stockInput ? (parseInt(stockInput.value, 10) || 0) : 0;
 
             if (!tipoPrecioRadio) {
                 showToast('Por favor, selecciona un tipo de precio.', 'error');
@@ -682,6 +716,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // --- INICIO DE LA NUEVA LÓGICA DE STOCK ---
+            let stock;
+            if (tipoPrecio === 'unidad') {
+                const stockInput = document.getElementById('edit-product-stock');
+                stock = stockInput ? (parseInt(stockInput.value, 10) || 0) : 0;
+            } else { // tipoPrecio es 'kg'
+                const availabilitySelect = document.getElementById('edit-product-availability');
+                stock = availabilitySelect ? availabilitySelect.value : 'disponible';
+            }
+            // --- FIN DE LA NUEVA LÓGICA DE STOCK ---
+
             const productIndex = productos.findIndex(p => p.id === currentEditingProductId);
             if (productIndex !== -1) {
                 productos[productIndex] = {
@@ -691,7 +736,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     tipoPrecio,
                     imagen: editProductImageUrlInput ? editProductImageUrlInput.value : "",
                     categoria: formCategorias,
-                    stock // <-- Se actualiza el campo de stock
+                    stock // Se actualiza el campo de stock con el nuevo valor (número o string)
                 };
 
                 formCategorias.forEach(cat => {
@@ -969,7 +1014,50 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
+    const toggleStockFields = (modalPrefix) => {
+        const priceType = document.querySelector(`input[name="${modalPrefix}-price-type"]:checked`).value;
+        const stockUnidadContainer = document.getElementById(`${modalPrefix}-stock-container-unidad`);
+        const stockKgContainer = document.getElementById(`${modalPrefix}-stock-container-kg`);
 
+        if (priceType === 'unidad') {
+            stockUnidadContainer.style.display = 'block';
+            stockKgContainer.style.display = 'none';
+        } else { // es 'kg'
+            stockUnidadContainer.style.display = 'none';
+            stockKgContainer.style.display = 'block';
+        }
+    };
+
+    // Listeners para los radio buttons en ambos modales
+    document.querySelectorAll('input[name="add-price-type"]').forEach(radio => {
+        radio.addEventListener('change', () => toggleStockFields('add'));
+    });
+
+    document.querySelectorAll('input[name="edit-price-type"]').forEach(radio => {
+        radio.addEventListener('change', () => toggleStockFields('edit'));
+    });
+
+    // También llamamos a la función al abrir los modales para que se muestre el estado correcto
+    const originalOpenAddProductModal = openAddProductModal;
+    openAddProductModal = () => {
+        originalOpenAddProductModal();
+        toggleStockFields('add');
+    };
+
+    const originalOpenEditProductModal = openEditProductModal;
+    openEditProductModal = (productId) => {
+        originalOpenEditProductModal(productId);
+        toggleStockFields('edit');
+
+        // Cargar el valor de disponibilidad si el producto es por kg
+        const product = productos.find(p => p.id === productId);
+        if (product && product.tipoPrecio === 'kg') {
+            const availabilitySelect = document.getElementById('edit-product-availability');
+            if (availabilitySelect) {
+                availabilitySelect.value = product.stock || 'disponible'; // 'stock' ahora guarda el string
+            }
+        }
+    };
 
     initApp();
 });

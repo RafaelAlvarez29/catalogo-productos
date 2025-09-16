@@ -162,9 +162,19 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="edit-product-stock">Inventario (Stock)</label>
+                    <div class="form-group" id="edit-stock-container-unidad">
+                        <label class="form-label" for="edit-product-stock">Inventario (Unidades)</label>
                         <input type="number" step="1" class="form-control" id="edit-product-stock" placeholder="Ej: 12">
+                    </div>
+
+                    <!-- Campo de Disponibilidad (para Kilos) -->
+                    <div class="form-group" id="edit-stock-container-kg" style="display: none;">
+                        <label class="form-label" for="edit-product-availability">Disponibilidad (Kg)</label>
+                        <select class="form-control" id="edit-product-availability">
+                            <option value="disponible">Disponible</option>
+                            <option value="poco">Poco</option>
+                            <option value="agotado">Agotado</option>
+                        </select>
                     </div>
 
                     <div class="form-group">
@@ -236,9 +246,20 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="edit-product-stock">Inventario (Stock)</label>
-                        <input type="number" step="1" class="form-control" id="edit-product-stock" placeholder="Ej: 12">
+                    <!-- Campo de Stock Numérico (para unidades) -->
+                    <div class="form-group" id="add-stock-container-unidad">
+                        <label class="form-label" for="add-product-stock">Inventario (Unidades)</label>
+                        <input type="number" step="1" class="form-control" id="add-product-stock" placeholder="Ej: 12">
+                    </div>
+
+                    <!-- Campo de Disponibilidad (para Kilos) -->
+                    <div class="form-group" id="add-stock-container-kg" style="display: none;">
+                        <label class="form-label" for="add-product-availability">Disponibilidad (Kg)</label>
+                        <select class="form-control" id="add-product-availability">
+                            <option value="disponible">Disponible</option>
+                            <option value="poco">Poco</option>
+                            <option value="agotado">Agotado</option>
+                        </select>
                     </div>
 
                     <div class="form-group">
