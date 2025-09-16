@@ -139,30 +139,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3500);
     };
 
-    const exportData = (data) => {
-        const fullData = {
-            productos: data.productos,
-            categorias: data.categorias,
-            appConfig: data.appConfig
-        };
+    if (exportDataBtn) {
+        exportDataBtn.addEventListener('click', () => {
+            // Lógica funcional de la versión anterior, actualizada para incluir appConfig.
 
-        if (!fullData.productos || fullData.productos.length === 0) {
-            showToast('No hay productos para exportar.', 'info');
-            return;
-        }
+            if (!productos || productos.length === 0) {
+                showToast('No hay productos para exportar.', 'info');
+                return;
+            }
 
-        const jsonData = JSON.stringify(fullData, null, 2);
-        const blob = new Blob([jsonData], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'catalogo-de-productos.json'; // Nombre de archivo mejorado
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        showToast('Datos exportados correctamente.', 'success');
-    };
+            const dataToExport = {
+                productos: productos,
+                categorias: categorias,
+                appConfig: appConfig // Se incluye la configuración completa de la app
+            };
+
+            const jsonData = JSON.stringify(dataToExport, null, 2);
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'catalogo-de-productos.json'; // Usamos el nombre de archivo mejorado
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('Datos exportados correctamente.', 'success');
+        });
+    }
 
 
     const showLoading = (show) => {
@@ -678,24 +682,92 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Lógica de exportar/importar/borrar datos (sin cambios)...
-    // Lógica de exportar/importar/borrar datos
-    if (exportDataBtn) {
-        exportDataBtn.addEventListener('click', () => {
-            // Llama a la función exportData con todos los datos de la app
-            exportData({ productos, categorias, appConfig });
-        });
-    }
+
 
     if (importDataFileInput) {
         importDataFileInput.addEventListener('change', (event) => {
-            // Aquí iría la lógica de importación, si la implementas en el futuro
+            const file = event.target.files[0];
+            if (file) {
+                if (file.type === "application/json") {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const importedData = JSON.parse(e.target.result);
+
+                            // Validación robusta: verifica que el JSON tenga la estructura mínima esperada.
+                            if (importedData && Array.isArray(importedData.productos) && Array.isArray(importedData.categorias)) {
+                                if (confirm('Esto reemplazará todos tus productos y categorías actuales. ¿Deseas continuar?')) {
+                                    productos = importedData.productos;
+                                    categorias = importedData.categorias;
+
+                                    // Importa la configuración de la app si existe, si no, usa la configuración por defecto.
+                                    if (importedData.appConfig) {
+                                        appConfig = { ...defaultConfig, ...importedData.appConfig };
+                                    } else {
+                                        appConfig = { ...defaultConfig };
+                                    }
+
+                                    saveAppData(); // Guarda los nuevos datos en localStorage
+
+                                    // Actualiza TODA la UI para reflejar los datos importados
+                                    applyTheme();
+                                    applyProductViewMode();
+                                    applyImageViewMode();
+                                    renderCategoryFilters();
+                                    renderProducts();
+
+                                    showToast('Datos importados correctamente.', 'success');
+                                    closeModal(settingsModalElement);
+                                }
+                            } else {
+                                showToast('El archivo JSON no tiene el formato esperado (faltan "productos" o "categorias").', 'error');
+                            }
+                        } catch (error) {
+                            console.error("Error al parsear JSON importado:", error);
+                            showToast('Error al leer el archivo. Asegúrate de que el formato JSON sea correcto.', 'error');
+                        } finally {
+                            // Limpia el input para poder importar el mismo archivo de nuevo si es necesario.
+                            importDataFileInput.value = '';
+                        }
+                    };
+                    reader.readAsText(file);
+                } else {
+                    showToast('Por favor, selecciona un archivo .json válido.', 'error');
+                    importDataFileInput.value = '';
+                }
+            }
         });
     }
 
     if (clearAllDataBtn) {
         clearAllDataBtn.addEventListener('click', () => {
-            // Aquí iría la lógica para borrar todos los datos
+            // Doble confirmación para máxima seguridad, como en la versión anterior.
+            if (confirm('¡ADVERTENCIA! Esto borrará TODOS los productos y categorías. Esta acción es irreversible. ¿Estás absolutamente seguro?')) {
+                if (confirm('ÚLTIMA ADVERTENCIA: ¿Realmente deseas borrar todos los datos?')) {
+
+                    // 1. Resetear todos los datos y estados de la aplicación
+                    productos = [];
+                    categorias = [];
+                    appConfig = { ...defaultConfig }; // Restaura la configuración a los valores por defecto
+                    currentCategoryFilter = 'all';    // Restaura el filtro actual
+                    currentSortOrder = 'default';     // Restaura el orden actual
+
+                    // 2. Guardar el estado vacío en el almacenamiento local
+                    saveAppData();
+
+                    // 3. Actualizar toda la interfaz de usuario para reflejar el estado vacío
+                    applyTheme();
+                    applyProductViewMode();
+                    applyImageViewMode();
+                    if (sortSelect) sortSelect.value = 'default'; // Reinicia el selector de orden
+                    renderCategoryFilters(); // Actualiza los botones de filtro (solo mostrará "Todas")
+                    renderProducts();      // Muestra el mensaje de "Catálogo Vacío"
+
+                    // 4. Notificar al usuario y cerrar el modal
+                    showToast('Todos los datos han sido borrados.', 'success');
+                    closeModal(settingsModalElement);
+                }
+            }
         });
     }
 
