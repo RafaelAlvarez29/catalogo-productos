@@ -101,6 +101,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const navSettingsBtn = document.getElementById('nav-settings');
     const fabAddProductBtn = document.getElementById('fab-add-product-btn');
 
+    const productsContainer = document.getElementById('products-list');
+    const scrollToTopBtn = document.getElementById('scroll-to-top-btn');
+
     // Formularios y campos: Añadir Producto
     const addUploadBtn = document.getElementById('add-upload-btn');
     const addCameraBtn = document.getElementById('add-camera-btn');
@@ -347,9 +350,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     <img src="${producto.imagen || ''}" alt="${producto.nombre}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                     <i class="fas fa-image product-image-fallback"></i>
                 `;
-
+        let stockHTML = '';
+        if (typeof producto.stock === 'number') {
+            let stockClass = 'stock-badge';
+            if (producto.stock === 0) {
+                stockClass += ' out'; // Agotado
+                card.classList.add('out-of-stock-card'); // Atenuar toda la tarjeta
+            } else if (producto.stock <= 5) {
+                stockClass += ' low'; // Stock bajo
+            }
+            stockHTML = `<div class="${stockClass}">Stock: ${producto.stock}</div>`;
+        }
         card.innerHTML = `
-                    <div class="product-image">
+            ${stockHTML}  <!-- <-- AÑADE ESTO AQUÍ -->
+            <div class="product-image">
                         ${imagenHTML}
                     </div>
                     <div class="product-info">
@@ -546,44 +560,88 @@ document.addEventListener('DOMContentLoaded', () => {
         openModal(addProductModalElement);
         if (addProductNameInput) addProductNameInput.focus();
     };
-    if (addSaveBtn) addSaveBtn.addEventListener('click', () => {
-        if (!addProductNameInput || !addProductPriceInput) return;
-        const nombre = addProductNameInput.value.trim();
-        const precio = parseFloat(addProductPriceInput.value);
-        const tipoPrecioRadio = document.querySelector('input[name="add-price-type"]:checked');
-        if (!tipoPrecioRadio) { showToast('Por favor, selecciona un tipo de precio.', 'error'); return; }
-        const tipoPrecio = tipoPrecioRadio.value;
-        const formCategorias = getSelectedTagsFromForm(addTagsContainer);
-        if (!nombre || isNaN(precio) || precio <= 0) { showToast('Nombre y precio ($) válido son requeridos.', 'error'); return; }
-        const newProduct = { id: generateId(), nombre, precio, imagen: addProductImageUrlInput ? addProductImageUrlInput.value : "", categoria: formCategorias, tipoPrecio };
-        productos.unshift(newProduct);
-        formCategorias.forEach(cat => { if (!categorias.includes(cat)) categorias.push(cat); });
-        categorias.sort();
-        saveAppData();
-        renderProducts();
-        renderCategoryFilters(); // Actualizar filtros por si hay nueva categoría
-        showToast('Producto añadido con éxito.', 'success');
-        if (continueAddingCheckbox && continueAddingCheckbox.checked) {
-            addProductForm.reset();
-            resetImagePreview(addImagePreview, addProductImageUrlInput, addImageFileInput);
-            if (addTagsContainer) addTagsContainer.innerHTML = '';
-            continueAddingCheckbox.checked = true;
-            if (addProductNameInput) addProductNameInput.focus();
-        } else {
-            closeModal(addProductModalElement);
-        }
-    });
+    // --- NUEVO CÓDIGO PARA addSaveBtn ---
+
+    if (addSaveBtn) {
+        addSaveBtn.addEventListener('click', () => {
+            if (!addProductNameInput || !addProductPriceInput) return;
+
+            const nombre = addProductNameInput.value.trim();
+            const precio = parseFloat(addProductPriceInput.value);
+            const tipoPrecioRadio = document.querySelector('input[name="add-price-type"]:checked');
+
+            // Obtiene el valor del stock. Usa parseInt para asegurar que sea un número entero.
+            // Si el campo está vacío o no es un número, por defecto será 0.
+            const stockInput = document.getElementById('add-product-stock');
+            const stock = stockInput ? (parseInt(stockInput.value, 10) || 0) : 0;
+
+            if (!tipoPrecioRadio) {
+                showToast('Por favor, selecciona un tipo de precio.', 'error');
+                return;
+            }
+            const tipoPrecio = tipoPrecioRadio.value;
+            const formCategorias = getSelectedTagsFromForm(addTagsContainer);
+
+            if (!nombre || isNaN(precio) || precio <= 0) {
+                showToast('Nombre y precio ($) válido son requeridos.', 'error');
+                return;
+            }
+
+            const newProduct = {
+                id: generateId(),
+                nombre,
+                precio,
+                imagen: addProductImageUrlInput ? addProductImageUrlInput.value : "",
+                categoria: formCategorias,
+                tipoPrecio,
+                stock // <-- Se añade el nuevo campo de stock
+            };
+
+            productos.unshift(newProduct);
+            formCategorias.forEach(cat => {
+                if (!categorias.includes(cat)) categorias.push(cat);
+            });
+            categorias.sort();
+
+            saveAppData();
+            renderProducts();
+            renderCategoryFilters();
+            showToast('Producto añadido con éxito.', 'success');
+
+            if (continueAddingCheckbox && continueAddingCheckbox.checked) {
+                addProductForm.reset();
+                resetImagePreview(addImagePreview, addProductImageUrlInput, addImageFileInput);
+                if (addTagsContainer) addTagsContainer.innerHTML = '';
+                continueAddingCheckbox.checked = true;
+                if (addProductNameInput) addProductNameInput.focus();
+            } else {
+                closeModal(addProductModalElement);
+            }
+        });
+    }
     const openEditProductModal = (productId) => {
         if (!editProductForm) return;
         const product = productos.find(p => p.id === productId);
-        if (!product) { showToast('Producto no encontrado.', 'error'); return; }
+        if (!product) {
+            showToast('Producto no encontrado.', 'error');
+            return;
+        }
         currentEditingProductId = productId;
         editProductForm.reset();
+
         if (editProductIdInput) editProductIdInput.value = product.id;
         if (editProductNameInput) editProductNameInput.value = product.nombre;
         if (editProductPriceInput) editProductPriceInput.value = product.precio;
+
+        // Rellena el campo de stock con el valor actual del producto.
+        const stockInput = document.getElementById('edit-product-stock');
+        if (stockInput) {
+            stockInput.value = product.stock || 0; // Si stock es undefined, pone 0
+        }
+
         const typeRadio = document.querySelector(`input[name="edit-price-type"][value="${product.tipoPrecio}"]`);
         if (typeRadio) typeRadio.checked = true;
+
         if (product.imagen) {
             const imageUrl = product.imagen;
             editProductImageUrlInput.value = imageUrl;
@@ -595,31 +653,62 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             resetImagePreview(editImagePreview, editProductImageUrlInput, editImageFileInput);
         }
+
         loadTagsToForm(product.categoria, editTagsContainer, editTagInput, editTagsMenu);
         openModal(editProductModalElement);
         if (editProductNameInput) editProductNameInput.focus();
     };
-    if (editSaveBtn) editSaveBtn.addEventListener('click', () => {
-        if (!currentEditingProductId || !editProductNameInput || !editProductPriceInput) return;
-        const nombre = editProductNameInput.value.trim();
-        const precio = parseFloat(editProductPriceInput.value);
-        const tipoPrecioRadio = document.querySelector('input[name="edit-price-type"]:checked');
-        if (!tipoPrecioRadio) { showToast('Por favor, selecciona un tipo de precio.', 'error'); return; }
-        const tipoPrecio = tipoPrecioRadio.value;
-        const formCategorias = getSelectedTagsFromForm(editTagsContainer);
-        if (!nombre || isNaN(precio) || precio <= 0) { showToast('Nombre y precio ($) válido son requeridos.', 'error'); return; }
-        const productIndex = productos.findIndex(p => p.id === currentEditingProductId);
-        if (productIndex !== -1) {
-            productos[productIndex] = { ...productos[productIndex], nombre, precio, tipoPrecio, imagen: editProductImageUrlInput ? editProductImageUrlInput.value : "", categoria: formCategorias };
-            formCategorias.forEach(cat => { if (!categorias.includes(cat)) categorias.push(cat); });
-            categorias.sort();
-            saveAppData();
-            renderProducts();
-            renderCategoryFilters(); // Actualizar filtros
-            closeModal(editProductModalElement);
-            showToast('Producto actualizado con éxito.', 'success');
-        } else { showToast('Error al actualizar el producto.', 'error'); }
-    });
+    if (editSaveBtn) {
+        editSaveBtn.addEventListener('click', () => {
+            if (!currentEditingProductId || !editProductNameInput || !editProductPriceInput) return;
+
+            const nombre = editProductNameInput.value.trim();
+            const precio = parseFloat(editProductPriceInput.value);
+            const tipoPrecioRadio = document.querySelector('input[name="edit-price-type"]:checked');
+
+            // Obtiene el valor del stock desde el modal de edición.
+            const stockInput = document.getElementById('edit-product-stock');
+            const stock = stockInput ? (parseInt(stockInput.value, 10) || 0) : 0;
+
+            if (!tipoPrecioRadio) {
+                showToast('Por favor, selecciona un tipo de precio.', 'error');
+                return;
+            }
+            const tipoPrecio = tipoPrecioRadio.value;
+            const formCategorias = getSelectedTagsFromForm(editTagsContainer);
+
+            if (!nombre || isNaN(precio) || precio <= 0) {
+                showToast('Nombre y precio ($) válido son requeridos.', 'error');
+                return;
+            }
+
+            const productIndex = productos.findIndex(p => p.id === currentEditingProductId);
+            if (productIndex !== -1) {
+                productos[productIndex] = {
+                    ...productos[productIndex],
+                    nombre,
+                    precio,
+                    tipoPrecio,
+                    imagen: editProductImageUrlInput ? editProductImageUrlInput.value : "",
+                    categoria: formCategorias,
+                    stock // <-- Se actualiza el campo de stock
+                };
+
+                formCategorias.forEach(cat => {
+                    if (!categorias.includes(cat)) categorias.push(cat);
+                });
+                categorias.sort();
+
+                saveAppData();
+                renderProducts();
+                renderCategoryFilters();
+                closeModal(editProductModalElement);
+                showToast('Producto actualizado con éxito.', 'success');
+            } else {
+                showToast('Error al actualizar el producto.', 'error');
+            }
+        });
+    }
     if (deleteProductBtn) deleteProductBtn.addEventListener('click', () => {
         if (!currentEditingProductId) return;
         if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
@@ -859,6 +948,27 @@ document.addEventListener('DOMContentLoaded', () => {
         editImageFileInput.click();
     });
 
+    // Lógica para mostrar/ocultar el botón
+    if (productsContainer && scrollToTopBtn) {
+        productsContainer.addEventListener('scroll', () => {
+            // Muestra el botón si el scroll es mayor a 400px
+            if (productsContainer.scrollTop > 400) {
+                scrollToTopBtn.classList.add('visible');
+                fabAddProductBtn.style.bottom = '140px'; // Sube el FAB
+            } else {
+                scrollToTopBtn.classList.remove('visible');
+                fabAddProductBtn.style.bottom = '80px'; // Devuelve el FAB a su posición original
+            }
+        });
+
+        // Lógica para hacer scroll al hacer clic
+        scrollToTopBtn.addEventListener('click', () => {
+            productsContainer.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    }
 
 
     initApp();

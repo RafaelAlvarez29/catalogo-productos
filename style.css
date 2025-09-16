@@ -1400,6 +1400,7 @@ body.dark-mode .radio-input:checked+.radio-tile .radio-tile-label {
 body.dark-mode .radio-icon i {
     color: var(--text-secondary);
 }
+
 /* --- NUEVO CÓDIGO CORREGIDO --- */
 
 /* --- Estilos para Interruptor de Tema (Texto Separado) --- */
@@ -1413,7 +1414,8 @@ body.dark-mode .radio-icon i {
 .theme-switch-label {
     font-size: 14px;
     font-weight: 500;
-    color: var(--text-primary); /* <-- ESTA LÍNEA ASEGURA EL COLOR CORRECTO EN MODO CLARO */
+    color: var(--text-primary);
+    /* <-- ESTA LÍNEA ASEGURA EL COLOR CORRECTO EN MODO CLARO */
     cursor: pointer;
     transition: color var(--transition-normal);
 }
@@ -1455,24 +1457,26 @@ body.dark-mode .radio-icon i {
     border-radius: 50%;
 }
 
-input:checked + .slider {
+input:checked+.slider {
     background-color: var(--primary-color);
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
     transform: translateX(22px);
 }
 
 
 /* --- Estilos para Dark Mode --- */
 body.dark-mode .theme-switch-label {
-    color: var(--primary-highlight-dark); /* <-- Color para modo oscuro */
+    color: var(--primary-highlight-dark);
+    /* <-- Color para modo oscuro */
 }
 
 /* Es importante sobreescribir el color del label aquí de nuevo
    para cuando se desactiva el dark mode */
 body:not(.dark-mode) .theme-switch-label {
-    color: var(--text-primary); /* <-- Reforzamos el color para modo claro */
+    color: var(--text-primary);
+    /* <-- Reforzamos el color para modo claro */
 }
 
 
@@ -1484,6 +1488,81 @@ body.dark-mode .slider:before {
     background-color: #d0d0d0;
 }
 
-body.dark-mode input:checked + .slider {
+body.dark-mode input:checked+.slider {
     background-color: var(--primary-highlight-dark);
+}
+
+/* --- FIN: NUEVO CÓDIGO CORREGIDO --- */
+
+/* --- Estilos para el Botón Volver Arriba --- */
+.scroll-to-top-btn {
+    position: fixed;
+    bottom: 80px;
+    /* Justo encima de la barra de navegación */
+    right: 20px;
+    width: 48px;
+    height: 48px;
+    background-color: var(--text-secondary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+    z-index: 890;
+    /* Un poco por debajo del FAB principal */
+    transition: opacity 0.3s ease, transform 0.3s ease;
+
+    /* Oculto por defecto */
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+}
+
+.scroll-to-top-btn.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+body.dark-mode .scroll-to-top-btn {
+    background-color: #555;
+}
+
+/* Ajuste para que no se solape con el FAB si ambos están visibles */
+.fab {
+    bottom: 140px;
+    /* Sube el FAB si el botón de scroll está activo */
+    transition: bottom 0.3s ease;
+}
+
+/* --- Estilos para el Badge de Stock --- */
+.stock-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    background-color: var(--success-color);
+    color: white;
+    z-index: 2;
+}
+
+.stock-badge.low {
+    background-color: var(--warning-color);
+    color: var(--text-primary);
+}
+
+.stock-badge.out {
+    background-color: var(--danger-color);
+}
+
+/* Estilo para atenuar tarjetas de productos agotados */
+.product-card.out-of-stock-card {
+    opacity: 0.6;
+    order: 1;
+    /* Manda los productos agotados al final de la lista */
 }
