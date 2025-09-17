@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hojadeprecios-cache-v1';
+const CACHE_NAME = 'hojadeprecios-cache-v2';
 const urlsToCache = [
   '/',
   '/index.html',
