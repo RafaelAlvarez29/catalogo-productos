@@ -2,7 +2,7 @@
 
 
 <p align="center">
-  <img src="./icon-512.png" alt="Texto alternativo" width="500">
+  <img src="./icon-512.png" alt="Texto alternativo" width="200">
 </p>
 
 Este proyecto es una **Aplicación Web Progresiva (PWA)** que funciona como un catálogo de productos. Utiliza la tecnología PWA para ofrecer una experiencia de usuario similar a la de una aplicación nativa, permitiendo el acceso sin conexión, la instalación en dispositivos móviles y un rápido rendimiento.
