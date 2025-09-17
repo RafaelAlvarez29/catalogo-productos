@@ -38,7 +38,6 @@ Un recorrido visual por las principales funcionalidades de la aplicación en for
 | <img src="/screenshots/05-editar-producto-parte1.jpeg" alt="Parte superior del modal para editar un producto" width="250"> | <img src="./screenshots/06-configuracion-parte1.jpeg" alt="Parte superior del modal de configuración" width="250"> |
 | <img src="./screenshots/07-editar-producto-parte2.jpeg" alt="Parte inferior del modal para editar un producto con categorías" width="250"> | <img src="./screenshots/08-configuracion-parte2.jpeg" alt="Parte inferior del modal de configuración con gestión de datos" width="250"> |
 
-<br>
 <div align="center">
   <h3>Vista en Escritorio</h3>
   <p><em>Posibilidad de usarse en pc o tablet.</em></p>
