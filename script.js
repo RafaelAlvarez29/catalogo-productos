@@ -208,6 +208,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (storedProductos) {
             productos = JSON.parse(storedProductos);
+
+            // --- INICIO DEL SCRIPT DE MIGRACIÓN ---
+            // Recorre cada producto para asegurarse de que tenga la propiedad 'stock'.
+            productos.forEach(product => {
+                // Si la propiedad 'stock' NO existe (es undefined)...
+                if (product.stock === undefined) {
+                    console.log(`Migrando producto antiguo: ${product.nombre}`); // Para depuración
+                    // ...le asignamos un valor por defecto según su tipo.
+                    if (product.tipoPrecio === 'unidad') {
+                        product.stock = 0; // Por defecto, las unidades sin stock empiezan en 0.
+                    } else if (product.tipoPrecio === 'kg') {
+                        product.stock = 'disponible'; // Por defecto, los kilos empiezan como 'disponible'.
+                    }
+                }
+            });
+            // --- FIN DEL SCRIPT DE MIGRACIÓN ---
+
         } else {
             productos = [
                 { id: generateId(), nombre: "Leche Entera 1L", precio: 25.50, imagen: "", categoria: ["Lácteos"], tipoPrecio: "unidad", stock: 12 },
@@ -276,6 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (radioToSelect) radioToSelect.checked = true;
     };
 
+
     const renderProducts = () => {
         if (!productsListContainer) return;
         showLoading(false);
@@ -297,33 +315,61 @@ document.addEventListener('DOMContentLoaded', () => {
             );
         }
 
-        // 3. Ordenar
-        switch (currentSortOrder) {
-            case 'price-asc':
-                productosFiltrados.sort((a, b) => a.precio - b.precio);
-                break;
-            case 'price-desc':
-                productosFiltrados.sort((a, b) => b.precio - a.precio);
-                break;
-            case 'name-asc':
-                productosFiltrados.sort((a, b) => a.nombre.localeCompare(b.nombre));
-                break;
-            case 'name-desc':
-                productosFiltrados.sort((a, b) => b.nombre.localeCompare(a.nombre));
-                break;
-            default: // 'default' - Mantiene el orden original (más reciente primero, ya que se añaden con unshift)
-                break;
-        }
+        // --- LÓGICA DE ORDENAMIENTO UNIFICADA ---
+
+        // Función de ayuda para comprobar si un producto está agotado
+        const isOutOfStock = (product) => {
+            return (product.tipoPrecio === 'unidad' && product.stock === 0) ||
+                (product.tipoPrecio === 'kg' && product.stock === 'agotado');
+        };
+
+        // Función de ayuda para obtener un valor numérico para el stock
+        const getStockValue = (product) => {
+            if (product.tipoPrecio === 'unidad') {
+                return typeof product.stock === 'number' ? product.stock : 0;
+            }
+            switch (product.stock) {
+                case 'agotado': return 0;
+                case 'poco': return 0.5;
+                case 'disponible': return Infinity;
+                default: return Infinity;
+            }
+        };
+
+        // 3. Ordenar (si no es 'default')
+        productosFiltrados.sort((a, b) => {
+            switch (currentSortOrder) {
+                case 'price-asc':
+                    return a.precio - b.precio;
+                case 'price-desc':
+                    return b.precio - a.precio;
+                case 'name-asc':
+                    return a.nombre.localeCompare(b.nombre);
+                case 'name-desc':
+                    return b.nombre.localeCompare(a.nombre);
+                case 'stock-asc':
+                case 'stock-desc': {
+                    const aVal = getStockValue(a);
+                    const bVal = getStockValue(b);
+                    return currentSortOrder === 'stock-asc'
+                        ? aVal - bVal
+                        : bVal - aVal;
+                }
+                default:
+                    return 0;
+            }
+        });
+        // Si el orden es 'default' (Recientes), no se aplica ningún sort.
 
         // 4. Renderizar el resultado
         productsListContainer.innerHTML = '';
         if (productosFiltrados.length === 0) {
             productsListContainer.innerHTML = `
-                        <div class="no-results">
-                            <i class="fas fa-search"></i>
-                            <h3>Sin resultados</h3>
-                            <p>No se encontraron productos que coincidan con tus criterios.</p>
-                        </div>`;
+                    <div class="no-results">
+                        <i class="fas fa-search"></i>
+                        <h3>Sin resultados</h3>
+                        <p>No se encontraron productos que coincidan con tus criterios.</p>
+                    </div>`;
             return;
         }
 
@@ -347,9 +393,10 @@ document.addEventListener('DOMContentLoaded', () => {
             producto.categoria.join(', ') : 'Sin categoría';
 
         const imagenHTML = `
-                    <img src="${producto.imagen || ''}" alt="${producto.nombre}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <i class="fas fa-image product-image-fallback"></i>
-                `;
+                <img src="${producto.imagen || ''}" alt="${producto.nombre}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <i class="fas fa-image product-image-fallback"></i>
+            `;
+
         let stockHTML = '';
         // SI ES POR UNIDAD, MUESTRA STOCK NUMÉRICO
         if (producto.tipoPrecio === 'unidad') {
@@ -357,11 +404,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 let stockClass = 'stock-badge';
                 if (producto.stock === 0) {
                     stockClass += ' out';
-                    card.classList.add('out-of-stock-card');
+                    card.classList.add('out-of-stock-card'); // Siempre añade la clase si está agotado
                 } else if (producto.stock <= 5) {
                     stockClass += ' low';
                 } else {
-                    stockClass += ' available'; // Usa la clase verde para stock normal
+                    stockClass += ' available';
                 }
                 stockHTML = `<div class="${stockClass}">Stock: ${producto.stock}</div>`;
             }
@@ -369,11 +416,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // SI ES POR KILO, MUESTRA ESTADO DE DISPONIBILIDAD
         else if (producto.tipoPrecio === 'kg') {
             let stockClass = 'stock-badge';
-            const stockStatus = producto.stock || 'disponible'; // 'stock' aquí es un string
+            const stockStatus = producto.stock || 'disponible';
             switch (stockStatus) {
                 case 'agotado':
                     stockClass += ' out';
-                    card.classList.add('out-of-stock-card');
+                    card.classList.add('out-of-stock-card'); // Siempre añade la clase si está agotado
                     break;
                 case 'poco':
                     stockClass += ' low';
@@ -381,22 +428,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 default: // 'disponible'
                     stockClass += ' available';
             }
-            // Capitalizar la primera letra para mostrar
             const displayText = stockStatus.charAt(0).toUpperCase() + stockStatus.slice(1);
             stockHTML = `<div class="${stockClass}">${displayText}</div>`;
         }
 
         card.innerHTML = `
-            ${stockHTML}  <!-- <-- AÑADE ESTO AQUÍ -->
-            <div class="product-image">
-                        ${imagenHTML}
-                    </div>
-                    <div class="product-info">
-                        <span class="product-category">${categoriasTexto}</span>
-                        <h3 class="product-name">${producto.nombre}</h3>
-                        <div class="product-price">${precioTexto}</div>
-                    </div>
-                `;
+        ${stockHTML}
+        <div class="product-image">
+                    ${imagenHTML}
+                </div>
+                <div class="product-info">
+                    <span class="product-category">${categoriasTexto}</span>
+                    <h3 class="product-name">${producto.nombre}</h3>
+                    <div class="product-price">${precioTexto}</div>
+                </div>
+            `;
         card.addEventListener('click', () => openEditProductModal(producto.id));
         return card;
     }

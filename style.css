@@ -1563,7 +1563,7 @@ body.dark-mode .scroll-to-top-btn {
 /* Estilo para atenuar tarjetas de productos agotados */
 .product-card.out-of-stock-card {
     opacity: 0.6;
-    order: 1;
+    /* La propiedad 'order: 1;' ha sido eliminada. */
     /* Manda los productos agotados al final de la lista */
 }
 
