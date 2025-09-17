@@ -1,46 +1,109 @@
-<img src="./icon-512.png" alt="Logo del Catálogo" width="100">
+<div align="center">
+  <img src="./icon-512.png" alt="Logo del Catálogo" width="120">
+  <h1>Catálogo de Productos Inteligente</h1>
+  <p>
+    Una <b>Aplicación Web Progresiva (PWA)</b> moderna para gestionar catálogos de productos, con funcionalidades sin conexión, instalación en dispositivos y capacidades de IA.
+  </p>
 
-## Catálogo de Productos Inteligente
+  <!-- Badges Tecnológicos -->
+  <p>
+    <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5">
+    <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" alt="CSS3">
+    <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript">
+    <img src="https://img.shields.io/badge/PWA-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white" alt="PWA">
+  </p>
 
-Este proyecto es una **Aplicación Web Progresiva (PWA)** que funciona como un catálogo de productos. Utiliza la tecnología PWA para ofrecer una experiencia de usuario similar a la de una aplicación nativa, permitiendo el acceso sin conexión, la instalación en dispositivos móviles y un rápido rendimiento.
+  <p>
+    <b>Estado del Proyecto:</b> En desarrollo 🚧
+  </p>
+</div>
 
-La aplicación incluye la integración de **inteligencia artificial de Google** para funcionalidades avanzadas (como análisis de imágenes o descripciones de productos), elevando el catálogo a un nivel superior.
+---
+
+## ✨ Demostración Visual
+
+Un recorrido visual por las principales funcionalidades de la aplicación en formato móvil.
+
+| Vista Principal y Modos | Búsqueda y Filtros |
+| :---: | :---: |
+| _Visualiza tus productos en cuadrícula o lista, con temas claro y oscuro._ | _Encuentra lo que necesitas al instante con filtros y búsqueda en tiempo real._ |
+| <img src="./screenshots/01-vista-cuadricula.jpeg" alt="Vista principal de la aplicación en modo cuadrícula" width="250"> | <img src="./screenshots/02-vista-cuadricula.jpeg" alt="Funcionalidad de búsqueda y filtros desplegados" width="250"> |
+| <img src="./screenshots/03-vista-lista-oscuro.jpeg" alt="Vista principal en modo lista y tema oscuro" width="250"> | <img src="./screenshots/04-instalacion-pwa.jpeg" alt="Proceso de instalación de la PWA en el dispositivo" width="250"> |
+
+<br>
+
+| Gestión de Productos | Panel de Configuración |
+| :---: | :---: |
+| _Un formulario completo para añadir o editar cada detalle de tus productos._ | _Personaliza la experiencia y gestiona tus datos fácilmente._ |
+| <img src="./screenshots/05-editar-producto-parte1.jpeg" alt="Parte superior del modal para editar un producto" width="250"> | <img src="./screenshots/06-configuracion-parte1.jpeg" alt="Parte superior del modal de configuración" width="250"> |
+| <img src="./screenshots/07-editar-producto-parte2.jpeg" alt="Parte inferior del modal para editar un producto con categorías" width="250"> | <img src="./screenshots/08-configuracion-parte2.jpeg" alt="Parte inferior del modal de configuración con gestión de datos" width="250"> |
+
+<br>
+
+<div align="center">
+  <a href="https://hojadeprecios.netlify.app/" target="_blank">
+    <img src="https://img.shields.io/badge/Ver_Demo_en_Vivo-28A745?style=for-the-badge&logo=netlify&logoColor=white" alt="Demo en vivo">
+  </a>
+</div>
 
 ---
 
 ## 🚀 Características Principales
 
-* **PWA Integrada:** Instala la aplicación directamente desde el navegador en tu dispositivo móvil o de escritorio.
-* **Gestión de Productos:** Añade, edita y elimina productos de manera sencilla.
-* **Funcionalidades de IA:** Utiliza las capacidades de IA de Google para enriquecer la experiencia del usuario (por ejemplo, para reconocimiento de imágenes).
-* **Búsqueda y Filtros:** Encuentra productos rápidamente con la barra de búsqueda y los filtros por categoría.
-* **Exportación de Datos:** Exporta tu catálogo completo a un archivo `.json` para respaldo o migración.
-* **Interfaz Responsiva:** La aplicación se adapta perfectamente a diferentes tamaños de pantalla, desde móviles hasta ordenadores.
+- **📱 PWA Integrada:** Instala la aplicación directamente desde el navegador en tu dispositivo móvil o de escritorio para una experiencia nativa.
+- **📦 Gestión de Productos Completa:** Añade, edita y elimina productos con imágenes, categorías personalizadas, tipo de precio y gestión de inventario (por unidad o disponibilidad).
+- **🎨 Personalización Visual:** Cambia entre vista de lista o cuadrícula y elige entre un tema claro o uno oscuro para adaptarla a tus preferencias.
+- **🔍 Búsqueda, Filtros y Ordenamiento:** Encuentra productos al instante con la barra de búsqueda, filtra por categorías y ordena los resultados por precio, nombre o stock.
+- **💾 Importación y Exportación de Datos:** Respalda y restaura tu catálogo completo con archivos `.json` de forma segura.
+- **🧠 Funcionalidades de IA:** Utiliza las capacidades de IA de Google para enriquecer la experiencia (próximamente).
+- **📱 Interfaz Responsiva:** Diseñada principalmente para móviles, se adapta perfectamente a cualquier tamaño de pantalla.
 
 ---
 
 ## 🛠️ Tecnologías Utilizadas
 
-* **HTML5:** Estructura de la aplicación.
-* **CSS3:** Estilos de la interfaz de usuario.
-* **JavaScript:** Lógica de la aplicación y funcionalidades dinámicas.
-* **PWA (Progressive Web App):** Permite la instalación y el uso sin conexión.
-* **Font Awesome:** Iconos utilizados en la interfaz.
+* **HTML5:** Estructura semántica de la aplicación.
+* **CSS3:** Estilos modernos, Flexbox, Grid y variables para temización.
+* **JavaScript (ES6+):** Lógica de la aplicación y funcionalidades dinámicas.
+* **PWA (Progressive Web App):** Service Worker para uso offline y Manifest para instalación.
+* **Font Awesome:** Iconos utilizados en toda la interfaz.
 
 ---
 
 ## 📦 Cómo Empezar
 
-Para ejecutar este proyecto de manera local y evitar problemas como el error de CORS, necesitas un servidor web local.
+Puedes probar la aplicación directamente en la web o ejecutarla localmente.
+
+### En la Web
 
 1.  **Abre la aplicación:**
-    Navega a la dirección `https://hojadeprecios.netlify.app/` (Actualmente se encuentra publicado en esa dirección).
+    Navega a la dirección **[hojadeprecios.netlify.app](https://hojadeprecios.netlify.app/)**.
 
 2.  **Instala la PWA:**
-    Si usas Google Chrome, haz clic en el icono de instalación en la barra de direcciones para añadir la aplicación a tu escritorio o pantalla de inicio.
+    Busca el icono de instalación en la barra de direcciones de tu navegador (en escritorio) o la opción "Añadir a pantalla de inicio" (en móvil) para usarla como una app nativa.
+
+### Localmente
+
+Para ejecutar este proyecto de manera local, necesitas un servidor web simple para evitar problemas de CORS con el `service-worker`.
+
+1.  **Clona el repositorio:**
+    ```bash
+    git clone https://github.com/TuUsuario/TuRepositorio.git
+    cd TuRepositorio
+    ```
+
+2.  **Inicia un servidor local:**
+    Si tienes Python 3 instalado, puedes usar:
+    ```bash
+    python -m http.server
+    ```
+    O si tienes `live-server` de npm:
+    ```bash
+    live-server
+    ```
+
+3.  **Abre la aplicación** en `http://localhost:8000` (o el puerto que indique tu servidor).
 
 ---
-
-### **Estado del Proyecto:** En desarrollo.
 
 Siéntete libre de contribuir o contactar al autor para más información.
