@@ -51,23 +51,29 @@
         </header>
 
         <!-- NUEVA SECCIÓN DE FILTROS -->
-        <div class="filters-container" id="filters-container">
-            <!-- Los botones de categoría se cargarán aquí -->
+
+
+        <div class="filter-sort-wrapper" id="filter-sort-wrapper">
+            <div class="filters-container" id="filters-container">
+                <!-- Los botones de categoría se cargarán aquí -->
+            </div>
+
+            <!-- SECCIÓN DE ORDENAMIENTO (sin cambios internos) -->
+            <div class="sorting-container">
+                <label for="sort-select">Ordenar por:</label>
+                <select id="sort-select">
+                    <option value="default">Recientes</option>
+                    <option value="price-asc">Precio: menor a mayor</option>
+                    <option value="price-desc">Precio: mayor a menor</option>
+                    <option value="name-asc">Nombre: A-Z</option>
+                    <option value="name-desc">Nombre: Z-A</option>
+                    <option value="stock-asc">Stock: menor a mayor</option>
+                    <option value="stock-desc">Stock: mayor a menor</option>
+                </select>
+            </div>
         </div>
 
-        <!-- NUEVA SECCIÓN DE ORDENAMIENTO -->
-        <div class="sorting-container">
-            <label for="sort-select">Ordenar por:</label>
-            <select id="sort-select">
-                <option value="default">Recientes</option>
-                <option value="price-asc">Precio: menor a mayor</option>
-                <option value="price-desc">Precio: mayor a menor</option>
-                <option value="name-asc">Nombre: A-Z</option>
-                <option value="name-desc">Nombre: Z-A</option>
-                <option value="stock-asc">Stock: menor a mayor</option>
-                <option value="stock-desc">Stock: mayor a menor</option>
-            </select>
-        </div>
+
 
         <div class="products-container" id="products-list">
             <div class="loading-indicator" id="loading-indicator-main">
