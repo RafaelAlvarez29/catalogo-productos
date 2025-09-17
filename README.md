@@ -1,5 +1,10 @@
 ![Captura de pantalla de la aplicación](https://raw.githubusercontent.com/RafaelAlvarez29/catalogo-productos/main/icon-512.png) # Catálogo de Productos Inteligente
 
+
+<p align="center">
+  <img src="./icon-512.png" alt="Texto alternativo" width="500">
+</p>
+
 Este proyecto es una **Aplicación Web Progresiva (PWA)** que funciona como un catálogo de productos. Utiliza la tecnología PWA para ofrecer una experiencia de usuario similar a la de una aplicación nativa, permitiendo el acceso sin conexión, la instalación en dispositivos móviles y un rápido rendimiento.
 
 La aplicación incluye la integración de **inteligencia artificial de Google** para funcionalidades avanzadas (como análisis de imágenes o descripciones de productos), elevando el catálogo a un nivel superior.
