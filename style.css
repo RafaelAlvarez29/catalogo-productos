@@ -1022,7 +1022,7 @@ body.dark-mode .image-preview-container:hover {
 .categories-list {
   list-style: none;
   margin-top: var(--spacing-md);
-  max-height: 200px;
+  max-height: auto;
   overflow-y: auto;
 }
 
