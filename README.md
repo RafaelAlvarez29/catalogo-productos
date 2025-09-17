@@ -1,4 +1,6 @@
-# Catálogo de Productos Inteligente
+<img src="./icon-512.png" alt="Logo del Catálogo" width="100">
+
+## Catálogo de Productos Inteligente
 
 Este proyecto es una **Aplicación Web Progresiva (PWA)** que funciona como un catálogo de productos. Utiliza la tecnología PWA para ofrecer una experiencia de usuario similar a la de una aplicación nativa, permitiendo el acceso sin conexión, la instalación en dispositivos móviles y un rápido rendimiento.
 
@@ -31,25 +33,10 @@ La aplicación incluye la integración de **inteligencia artificial de Google** 
 
 Para ejecutar este proyecto de manera local y evitar problemas como el error de CORS, necesitas un servidor web local.
 
-1.  **Clona el repositorio:**
-    ```bash
-    git clone [https://github.com/RafaelAlvarez29/catalogo-productos](https://github.com/RafaelAlvarez29/catalogo-productos)
-    cd catalogo-productos
-    ```
+1.  **Abre la aplicación:**
+    Navega a la dirección `https://hojadeprecios.netlify.app/` (Actualmente se encuentra publicado en esa dirección).
 
-2.  **Configura un servidor web local:**
-    Utiliza un servidor como **Live Server** (una extensión de VS Code) o `http-server` de Node.js.
-
-    ```bash
-    # Si tienes Node.js instalado
-    npm install -g http-server
-    http-server
-    ```
-
-3.  **Abre la aplicación:**
-    Una vez que el servidor esté activo, abre tu navegador y navega a la dirección `http://localhost:8080` (el puerto puede variar).
-
-4.  **Instala la PWA:**
+2.  **Instala la PWA:**
     Si usas Google Chrome, haz clic en el icono de instalación en la barra de direcciones para añadir la aplicación a tu escritorio o pantalla de inicio.
 
 ---
