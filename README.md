@@ -35,7 +35,7 @@ Un recorrido visual por las principales funcionalidades de la aplicación en for
 | Gestión de Productos | Panel de Configuración |
 | :---: | :---: |
 | _Un formulario completo para añadir o editar cada detalle de tus productos._ | _Personaliza la experiencia y gestiona tus datos fácilmente._ |
-| <img src="./screenshots/05-editar-producto-parte1.jpeg" alt="Parte superior del modal para editar un producto" width="250"> | <img src="./screenshots/06-configuracion-parte1.jpeg" alt="Parte superior del modal de configuración" width="250"> |
+| <img src="/screenshots/05-editar-producto-parte1.jpeg" alt="Parte superior del modal para editar un producto" width="250"> | <img src="./screenshots/06-configuracion-parte1.jpeg" alt="Parte superior del modal de configuración" width="250"> |
 | <img src="./screenshots/07-editar-producto-parte2.jpeg" alt="Parte inferior del modal para editar un producto con categorías" width="250"> | <img src="./screenshots/08-configuracion-parte2.jpeg" alt="Parte inferior del modal de configuración con gestión de datos" width="250"> |
 
 <br>
