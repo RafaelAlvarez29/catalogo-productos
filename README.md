@@ -3,6 +3,7 @@
 </p> 
 ## Catálogo de Productos Inteligente
 
+
 Este proyecto es una **Aplicación Web Progresiva (PWA)** que funciona como un catálogo de productos. Utiliza la tecnología PWA para ofrecer una experiencia de usuario similar a la de una aplicación nativa, permitiendo el acceso sin conexión, la instalación en dispositivos móviles y un rápido rendimiento.
 
 La aplicación incluye la integración de **inteligencia artificial de Google** para funcionalidades avanzadas (como análisis de imágenes o descripciones de productos), elevando el catálogo a un nivel superior.
