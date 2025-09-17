@@ -94,8 +94,8 @@ Para ejecutar este proyecto de manera local, necesitas un servidor web simple pa
 
 1.  **Clona el repositorio:**
     ```bash
-    git clone https://github.com/TuUsuario/TuRepositorio.git
-    cd TuRepositorio
+    git clone https://github.com/RafaelAlvarez29/catalogo-productos.git
+    cd catalogo-productos
     ```
 
 2.  **Inicia un servidor local:**
