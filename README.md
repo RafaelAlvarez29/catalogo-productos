@@ -39,6 +39,11 @@ Un recorrido visual por las principales funcionalidades de la aplicación en for
 | <img src="./screenshots/07-editar-producto-parte2.jpeg" alt="Parte inferior del modal para editar un producto con categorías" width="250"> | <img src="./screenshots/08-configuracion-parte2.jpeg" alt="Parte inferior del modal de configuración con gestión de datos" width="250"> |
 
 <br>
+| Vista en escritorio (Posibilidad de usarse en pc o tablet.) |
+| <img src="./screenshots/09-vista-escritorio.jpeg" alt="Vista de escritorio" width="500">  |
+
+
+<br>
 
 <div align="center">
   <a href="https://hojadeprecios.netlify.app/" target="_blank">
