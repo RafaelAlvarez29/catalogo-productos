@@ -21,7 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const defaultConfig = {
         productViewMode: 'grid',
         theme: 'light',
-        productImageView: 'cover'
+        productImageView: 'cover',
+        showStock: true  
     };
     let appConfig = { ...defaultConfig };
 
@@ -504,41 +505,67 @@ document.addEventListener('DOMContentLoaded', () => {
     const openModal = (modalElement) => modalElement.classList.add('show');
     const closeModal = (modalElement) => modalElement.classList.remove('show');
 
-    const handleImageUpload = (file, previewElement, urlInputElement, fileInputElement) => {
-        if (!previewElement || !urlInputElement || !fileInputElement) return;
-        if (file && file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const MAX_WIDTH = 800, MAX_HEIGHT = 800;
-                    let { width, height } = img;
-                    if (width > height) {
-                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-                    } else {
-                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-                    }
-                    canvas.width = width;
-                    canvas.height = height;
-                    ctx.drawImage(img, 0, 0, width, height);
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
-                    urlInputElement.value = dataUrl;
-                    previewElement.innerHTML = `<img src="${dataUrl}" alt="Vista previa"><button type="button" class="image-remove-btn"><i class="fas fa-times"></i></button>`;
-                    previewElement.querySelector('.image-remove-btn').addEventListener('click', (event) => {
-                        event.stopPropagation();
-                        resetImagePreview(previewElement, urlInputElement, fileInputElement);
-                    });
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        } else {
-            showToast('Por favor, selecciona un archivo de imagen válido.', 'error');
-            resetImagePreview(previewElement, urlInputElement, fileInputElement);
+   const handleImageUpload = (file, previewElement, urlInputElement, fileInputElement) => {
+    if (!previewElement || !urlInputElement || !fileInputElement) return;
+    if (file && file.type.startsWith('image/')) {
+
+        // 🔹 Si es GIF → no pasarlo por canvas
+        if (file.type === "image/gif") {
+            const objectUrl = URL.createObjectURL(file);
+            urlInputElement.value = objectUrl;
+            previewElement.innerHTML = `
+                <img src="${objectUrl}" alt="Vista previa">
+                <button type="button" class="image-remove-btn">
+                    <i class="fas fa-times"></i>
+                </button>`;
+            previewElement.querySelector('.image-remove-btn').addEventListener('click', (event) => {
+                event.stopPropagation();
+                URL.revokeObjectURL(objectUrl); // liberar memoria
+                resetImagePreview(previewElement, urlInputElement, fileInputElement);
+            });
+            return; // 🚀 salir aquí para no procesar con canvas
         }
-    };
+
+        // 🔹 PNG/JPG → usar canvas (pero manteniendo transparencia en PNG)
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const MAX_WIDTH = 800, MAX_HEIGHT = 800;
+                let { width, height } = img;
+                if (width > height) {
+                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                } else {
+                    if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Usar PNG si la imagen original era PNG (para conservar transparencia)
+                const format = file.type === "image/png" ? "image/png" : "image/jpeg";
+                const dataUrl = canvas.toDataURL(format, 0.75);
+
+                urlInputElement.value = dataUrl;
+                previewElement.innerHTML = `
+                    <img src="${dataUrl}" alt="Vista previa">
+                    <button type="button" class="image-remove-btn"><i class="fas fa-times"></i></button>`;
+                previewElement.querySelector('.image-remove-btn').addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    resetImagePreview(previewElement, urlInputElement, fileInputElement);
+                });
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+
+    } else {
+        showToast('Por favor, selecciona un archivo de imagen válido.', 'error');
+        resetImagePreview(previewElement, urlInputElement, fileInputElement);
+    }
+};
     const resetImagePreview = (previewElement, urlInputElement, fileInputElement) => {
         if (!previewElement || !urlInputElement || !fileInputElement) return;
         previewElement.innerHTML = `<div class="image-preview-placeholder"><i class="fas fa-camera"></i><span>Añadir foto</span></div>`;
