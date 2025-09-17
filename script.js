@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         productViewMode: 'grid',
         theme: 'light',
         productImageView: 'cover',
-        showStock: true  
+        showStock: true
     };
     let appConfig = { ...defaultConfig };
 
@@ -34,6 +34,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const toastElement = document.getElementById('toast');
     const loadingIndicatorMain = document.getElementById('loading-indicator-main');
     const themeToggleCheckbox = document.getElementById('theme-toggle-checkbox');
+    const stockToggleCheckbox = document.getElementById('stock-toggle-checkbox');
+    if (stockToggleCheckbox) {
+        stockToggleCheckbox.addEventListener('change', () => {
+            appConfig.showStock = stockToggleCheckbox.checked;
+            saveAppData();
+            renderProducts(); // 🔹 Volver a pintar productos sin stock badges
+            showToast(`Etiquetas de stock ${appConfig.showStock ? 'visibles' : 'ocultas'}.`, 'info');
+        });
+    }
 
     // --- NUEVOS ELEMENTOS DEL DOM ---
     const viewModeBtn = document.getElementById('view-mode-btn');
@@ -256,17 +265,27 @@ document.addEventListener('DOMContentLoaded', () => {
             appConfig = { ...defaultConfig };
         }
 
+        // 🔹 Aplicar configuración guardada
         applyTheme();
         applyProductViewMode();
         applyImageViewMode();
+
+        // 🔹 Aplicar el toggle de stock si existe en el DOM
+        const stockToggleCheckbox = document.getElementById('stock-toggle-checkbox');
+        if (stockToggleCheckbox) {
+            stockToggleCheckbox.checked = appConfig.showStock;
+        }
+
         showLoading(false);
     };
+
 
     if (themeToggleCheckbox) {
         themeToggleCheckbox.addEventListener('change', () => {
             appConfig.theme = themeToggleCheckbox.checked ? 'dark' : 'light';
             applyTheme();
             saveAppData();
+            renderProducts();
             showToast(`Tema cambiado a modo ${appConfig.theme === 'dark' ? 'oscuro' : 'claro'}.`, 'info');
         });
     }
@@ -394,59 +413,66 @@ document.addEventListener('DOMContentLoaded', () => {
             producto.categoria.join(', ') : 'Sin categoría';
 
         const imagenHTML = `
-                <img src="${producto.imagen || ''}" alt="${producto.nombre}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                <i class="fas fa-image product-image-fallback"></i>
-            `;
+        <img src="${producto.imagen || ''}" alt="${producto.nombre}" 
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <i class="fas fa-image product-image-fallback"></i>
+    `;
 
         let stockHTML = '';
-        // SI ES POR UNIDAD, MUESTRA STOCK NUMÉRICO
-        if (producto.tipoPrecio === 'unidad') {
-            if (typeof producto.stock === 'number') {
-                let stockClass = 'stock-badge';
-                if (producto.stock === 0) {
-                    stockClass += ' out';
-                    card.classList.add('out-of-stock-card'); // Siempre añade la clase si está agotado
-                } else if (producto.stock <= 5) {
-                    stockClass += ' low';
-                } else {
-                    stockClass += ' available';
+
+        // 🔹 Solo mostrar stock si está habilitado en configuración
+        if (appConfig.showStock) {
+            // SI ES POR UNIDAD, MUESTRA STOCK NUMÉRICO
+            if (producto.tipoPrecio === 'unidad') {
+                if (typeof producto.stock === 'number') {
+                    let stockClass = 'stock-badge';
+                    if (producto.stock === 0) {
+                        stockClass += ' out';
+                        card.classList.add('out-of-stock-card'); // Siempre añade la clase si está agotado
+                    } else if (producto.stock <= 5) {
+                        stockClass += ' low';
+                    } else {
+                        stockClass += ' available';
+                    }
+                    stockHTML = `<div class="${stockClass}">Stock: ${producto.stock}</div>`;
                 }
-                stockHTML = `<div class="${stockClass}">Stock: ${producto.stock}</div>`;
             }
-        }
-        // SI ES POR KILO, MUESTRA ESTADO DE DISPONIBILIDAD
-        else if (producto.tipoPrecio === 'kg') {
-            let stockClass = 'stock-badge';
-            const stockStatus = producto.stock || 'disponible';
-            switch (stockStatus) {
-                case 'agotado':
-                    stockClass += ' out';
-                    card.classList.add('out-of-stock-card'); // Siempre añade la clase si está agotado
-                    break;
-                case 'poco':
-                    stockClass += ' low';
-                    break;
-                default: // 'disponible'
-                    stockClass += ' available';
+            // SI ES POR KILO, MUESTRA ESTADO DE DISPONIBILIDAD
+            else if (producto.tipoPrecio === 'kg') {
+                let stockClass = 'stock-badge';
+                const stockStatus = producto.stock || 'disponible';
+                switch (stockStatus) {
+                    case 'agotado':
+                        stockClass += ' out';
+                        card.classList.add('out-of-stock-card');
+                        break;
+                    case 'poco':
+                        stockClass += ' low';
+                        break;
+                    default: // 'disponible'
+                        stockClass += ' available';
+                }
+                const displayText = stockStatus.charAt(0).toUpperCase() + stockStatus.slice(1);
+                stockHTML = `<div class="${stockClass}">${displayText}</div>`;
             }
-            const displayText = stockStatus.charAt(0).toUpperCase() + stockStatus.slice(1);
-            stockHTML = `<div class="${stockClass}">${displayText}</div>`;
         }
 
         card.innerHTML = `
         ${stockHTML}
         <div class="product-image">
-                    ${imagenHTML}
-                </div>
-                <div class="product-info">
-                    <span class="product-category">${categoriasTexto}</span>
-                    <h3 class="product-name">${producto.nombre}</h3>
-                    <div class="product-price">${precioTexto}</div>
-                </div>
-            `;
+            ${imagenHTML}
+        </div>
+        <div class="product-info">
+            <span class="product-category">${categoriasTexto}</span>
+            <h3 class="product-name">${producto.nombre}</h3>
+            <div class="product-price">${precioTexto}</div>
+        </div>
+    `;
+
         card.addEventListener('click', () => openEditProductModal(producto.id));
         return card;
     }
+
 
     const renderCategoriesInManageModal = () => {
         if (!manageCategoriesListElement) return;
@@ -505,67 +531,67 @@ document.addEventListener('DOMContentLoaded', () => {
     const openModal = (modalElement) => modalElement.classList.add('show');
     const closeModal = (modalElement) => modalElement.classList.remove('show');
 
-   const handleImageUpload = (file, previewElement, urlInputElement, fileInputElement) => {
-    if (!previewElement || !urlInputElement || !fileInputElement) return;
-    if (file && file.type.startsWith('image/')) {
+    const handleImageUpload = (file, previewElement, urlInputElement, fileInputElement) => {
+        if (!previewElement || !urlInputElement || !fileInputElement) return;
+        if (file && file.type.startsWith('image/')) {
 
-        // 🔹 Si es GIF → no pasarlo por canvas
-        if (file.type === "image/gif") {
-            const objectUrl = URL.createObjectURL(file);
-            urlInputElement.value = objectUrl;
-            previewElement.innerHTML = `
+            // 🔹 Si es GIF → no pasarlo por canvas
+            if (file.type === "image/gif") {
+                const objectUrl = URL.createObjectURL(file);
+                urlInputElement.value = objectUrl;
+                previewElement.innerHTML = `
                 <img src="${objectUrl}" alt="Vista previa">
                 <button type="button" class="image-remove-btn">
                     <i class="fas fa-times"></i>
                 </button>`;
-            previewElement.querySelector('.image-remove-btn').addEventListener('click', (event) => {
-                event.stopPropagation();
-                URL.revokeObjectURL(objectUrl); // liberar memoria
-                resetImagePreview(previewElement, urlInputElement, fileInputElement);
-            });
-            return; // 🚀 salir aquí para no procesar con canvas
-        }
-
-        // 🔹 PNG/JPG → usar canvas (pero manteniendo transparencia en PNG)
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                const MAX_WIDTH = 800, MAX_HEIGHT = 800;
-                let { width, height } = img;
-                if (width > height) {
-                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-                } else {
-                    if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-                }
-                canvas.width = width;
-                canvas.height = height;
-                ctx.drawImage(img, 0, 0, width, height);
-
-                // Usar PNG si la imagen original era PNG (para conservar transparencia)
-                const format = file.type === "image/png" ? "image/png" : "image/jpeg";
-                const dataUrl = canvas.toDataURL(format, 0.75);
-
-                urlInputElement.value = dataUrl;
-                previewElement.innerHTML = `
-                    <img src="${dataUrl}" alt="Vista previa">
-                    <button type="button" class="image-remove-btn"><i class="fas fa-times"></i></button>`;
                 previewElement.querySelector('.image-remove-btn').addEventListener('click', (event) => {
                     event.stopPropagation();
+                    URL.revokeObjectURL(objectUrl); // liberar memoria
                     resetImagePreview(previewElement, urlInputElement, fileInputElement);
                 });
-            };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
+                return; // 🚀 salir aquí para no procesar con canvas
+            }
 
-    } else {
-        showToast('Por favor, selecciona un archivo de imagen válido.', 'error');
-        resetImagePreview(previewElement, urlInputElement, fileInputElement);
-    }
-};
+            // 🔹 PNG/JPG → usar canvas (pero manteniendo transparencia en PNG)
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const MAX_WIDTH = 800, MAX_HEIGHT = 800;
+                    let { width, height } = img;
+                    if (width > height) {
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                    } else {
+                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Usar PNG si la imagen original era PNG (para conservar transparencia)
+                    const format = file.type === "image/png" ? "image/png" : "image/jpeg";
+                    const dataUrl = canvas.toDataURL(format, 0.75);
+
+                    urlInputElement.value = dataUrl;
+                    previewElement.innerHTML = `
+                    <img src="${dataUrl}" alt="Vista previa">
+                    <button type="button" class="image-remove-btn"><i class="fas fa-times"></i></button>`;
+                    previewElement.querySelector('.image-remove-btn').addEventListener('click', (event) => {
+                        event.stopPropagation();
+                        resetImagePreview(previewElement, urlInputElement, fileInputElement);
+                    });
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+
+        } else {
+            showToast('Por favor, selecciona un archivo de imagen válido.', 'error');
+            resetImagePreview(previewElement, urlInputElement, fileInputElement);
+        }
+    };
     const resetImagePreview = (previewElement, urlInputElement, fileInputElement) => {
         if (!previewElement || !urlInputElement || !fileInputElement) return;
         previewElement.innerHTML = `<div class="image-preview-placeholder"><i class="fas fa-camera"></i><span>Añadir foto</span></div>`;
