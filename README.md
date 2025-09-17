@@ -1,8 +1,8 @@
 <div align="center">
   <img src="./icon-512.png" alt="Logo del Catálogo" width="120">
-  <h1>Catálogo de Productos Inteligente</h1>
+  <h1>Catálogo de Productos</h1>
   <p>
-    Una <b>Aplicación Web Progresiva (PWA)</b> moderna para gestionar catálogos de productos, con funcionalidades sin conexión, instalación en dispositivos y capacidades de IA.
+    Una <b>Aplicación Web Progresiva (PWA)</b> moderna para gestionar catálogos de productos, con funcionalidades sin conexión e instalación en dispositivos
   </p>
 
   <!-- Badges Tecnológicos -->
@@ -55,7 +55,6 @@ Un recorrido visual por las principales funcionalidades de la aplicación en for
 - **🎨 Personalización Visual:** Cambia entre vista de lista o cuadrícula y elige entre un tema claro o uno oscuro para adaptarla a tus preferencias.
 - **🔍 Búsqueda, Filtros y Ordenamiento:** Encuentra productos al instante con la barra de búsqueda, filtra por categorías y ordena los resultados por precio, nombre o stock.
 - **💾 Importación y Exportación de Datos:** Respalda y restaura tu catálogo completo con archivos `.json` de forma segura.
-- **🧠 Funcionalidades de IA:** Utiliza las capacidades de IA de Google para enriquecer la experiencia (próximamente).
 - **📱 Interfaz Responsiva:** Diseñada principalmente para móviles, se adapta perfectamente a cualquier tamaño de pantalla.
 
 ---
