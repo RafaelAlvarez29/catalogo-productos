@@ -84,23 +84,23 @@ header {
 }
 
 .header-row {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
 }
 
 /* La barra de búsqueda debe ocupar el espacio restante */
 .header-row .search-container {
-    flex: 1; /* 🔹 Esto hace que se expanda */
-    position: relative;
+  flex: 1; /* 🔹 Esto hace que se expanda */
+  position: relative;
 }
 
 .header-row .header-actions {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    flex-shrink: 0; /* 🔹 No se encogen */
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-shrink: 0; /* 🔹 No se encogen */
 }
 
 .header-actions .btn-icon {
@@ -263,6 +263,7 @@ header {
   /* Space for the navigation bar */
   scroll-behavior: smooth;
   position: relative;
+  -webkit-overflow-scrolling: touch; /* scroll inercial en iOS */
 }
 
 .products-container.image-view-cover .product-image img {
@@ -912,7 +913,7 @@ body.dark-mode .image-preview-container:hover {
   gap: var(--spacing-xs);
   margin-top: var(--spacing-xs);
   padding: var(--spacing-xs);
-  border:none; /*1px solid rgba(0, 0, 0, 0.1);*/
+  border: none; /*1px solid rgba(0, 0, 0, 0.1);*/
   border-radius: var(--border-radius-sm);
   min-height: 38px;
 }
@@ -1574,10 +1575,6 @@ body.dark-mode .scroll-to-top-btn {
 
 /* --- Estilos para el Switch de Vista (Lista/Cuadrícula) --- */
 
-
-
-
-
 .slider:before {
   position: absolute;
   content: "";
@@ -1586,7 +1583,7 @@ body.dark-mode .scroll-to-top-btn {
   left: 3px;
   bottom: 3px;
   background-color: white;
-  transition: .4s;
+  transition: 0.4s;
   border-radius: 50%;
 }
 
@@ -1598,51 +1595,54 @@ input:checked + .slider:before {
   transform: translateX(26px);
 }
 .toggle-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* 🔹 Texto a la izq, switch a la der */
-    padding: var(--spacing-sm) 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 🔹 Texto a la izq, switch a la der */
+  padding: var(--spacing-sm) 0;
 }
 /* Switch unificado */
 .switch {
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 24px;
-    flex-shrink: 0; /* 🔹 evita que se deforme */
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+  flex-shrink: 0; /* 🔹 evita que se deforme */
 }
 
 .switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
+  opacity: 0;
+  width: 0;
+  height: 0;
 }
 
 .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
-    border-radius: 24px;
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 24px;
 }
 
 .slider:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: .4s;
-    border-radius: 50%;
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
 }
 
 input:checked + .slider {
-    background-color: var(--primary-color);
+  background-color: var(--primary-color);
 }
 
 input:checked + .slider:before {
-    transform: translateX(26px);
+  transform: translateX(26px);
 }
