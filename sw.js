@@ -37,29 +37,17 @@ self.addEventListener('activate', (event) => {
 // Evento de fetch: intercepta las peticiones de red y sirve desde la caché si es posible
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request)
+    fetch(event.request)
       .then((response) => {
-        // Devuelve la respuesta de la caché si se encuentra
-        if (response) {
-          return response;
+        // Si es válido, actualiza caché
+        if (response && response.status === 200 && response.type === 'basic') {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
         }
-
-        // Si no se encuentra, busca en la red
-        return fetch(event.request).then(
-          (response) => {
-            // Guarda una copia de la respuesta en la caché para usos futuros
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-
-            const responseToCache = response.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, responseToCache);
-            });
-
-            return response;
-          }
-        );
+        return response;
       })
+      .catch(() => caches.match(event.request)) // fallback si no hay red
   );
 });
